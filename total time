@@ -1,0 +1,118 @@
+package cse_316;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
+class Query {
+    String name;
+    int time;
+
+    Query(String n, int t) {
+        name = n;
+        time = t;
+    }
+}
+
+public class OnlineQueryHandlingSystem {
+
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+
+        Queue<Query> studentQueue = new LinkedList<>();
+        Queue<Query> facultyQueue = new LinkedList<>();
+
+        int studentTotalTime = 0;
+        int facultyTotalTime = 0;
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the number of processes: ");
+        int n = sc.nextInt();
+        
+        System.out.println("Sudesh Sharma's Online Query Handling System");
+        System.out.println("Please enter your queries below:");
+        System.out.println("Type 'exit' to stop.");
+
+        while (true) {
+            System.out.print("Name: ");
+            String name = scanner.nextLine();
+
+            if (name.equalsIgnoreCase("exit")) {
+                break;
+            }
+
+            System.out.print("Type (student/faculty): ");
+            String type = scanner.nextLine();
+
+            System.out.print("Time required to resolve (in minutes): ");
+            int time = scanner.nextInt();
+            scanner.nextLine(); // consume the new line character
+
+            Query query = new Query(name, time);
+
+            if (type.equalsIgnoreCase("student")) {
+                studentQueue.add(query);
+            } else if (type.equalsIgnoreCase("faculty")) {
+                facultyQueue.add(query);
+            } else {
+                System.out.println("Invalid query type. Please try again.");
+                continue;
+            }
+        }
+
+        scanner.close();
+
+        int totalTime = 0;
+
+        System.out.println("Query summary:");
+
+        // Handle student queries
+        System.out.println("\nStudent queries:");
+
+        while (!studentQueue.isEmpty()) {
+            Query query = studentQueue.poll();
+            System.out.println(query.name + ": " + query.time + " minutes");
+            totalTime += query.time;
+
+            if (totalTime > 120) { // Sudesh Sharma's available time is 2 hours = 120 minutes
+                System.out.println("Time limit reached. Remaining queries will not be handled.");
+                break;
+            }
+
+            studentTotalTime += query.time;
+        }
+
+        if (studentTotalTime > 0) {
+            System.out.println("\nTotal time spent on student queries: " + studentTotalTime + " minutes");
+            
+            double avgWaitingTime = (double) studentTotalTime / n;
+            System.out.println("Average waiting time: " + avgWaitingTime);
+        }
+
+        totalTime = 0;
+
+        // Handle faculty queries
+        System.out.println("\nFaculty queries:");
+
+        while (!facultyQueue.isEmpty()) {
+            Query query = facultyQueue.poll();
+            System.out.println(query.name + ": " + query.time + " minutes");
+            totalTime += query.time;
+
+            if (totalTime > 120) { // Sudesh Sharma's available time is 2 hours = 120 minutes
+                System.out.println("Time limit reached. Remaining queries will not be handled.");
+                break;
+            }
+
+            facultyTotalTime += query.time;
+        }
+
+        if (facultyTotalTime > 0) {
+            System.out.println("\nTotal time spent on faculty queries: " + facultyTotalTime + " minutes");
+          
+            System.out.println("\nTotal time spend for both queries: " +(facultyTotalTime + studentTotalTime));
+        }
+
+    }
+
+}
