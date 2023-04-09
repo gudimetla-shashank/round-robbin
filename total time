@@ -1,87 +1,120 @@
-import java.util.*;
+package cse_316;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
 
 class Query {
     String name;
-    int timeRemaining;
+    int time;
 
-    public Query(String name, int time) {
-        this.name = name;
-        this.timeRemaining = time;
+    Query(String n, int t) {
+        name = n;
+        time = t;
     }
 }
 
 public class OnlineQueryHandlingSystem {
+
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
+
+        Scanner scanner = new Scanner(System.in);
 
         Queue<Query> studentQueue = new LinkedList<>();
         Queue<Query> facultyQueue = new LinkedList<>();
 
-        System.out.print("Enter the number of student queries: ");
-        int numStudentQueries = input.nextInt();
-        for (int i = 1; i <= numStudentQueries; i++) {
-            System.out.print("Enter the time required for Student " + i + " (in minutes): ");
-            int time = input.nextInt();
-            studentQueue.add(new Query("Student " + i, time));
-        }
+        int studentTotalTime = 0;
+        int facultyTotalTime = 0;
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the number of processes: ");
+        int n = sc.nextInt();
+        
+        System.out.println("Sudesh Sharma's Online Query Handling System");
+        System.out.println("Please enter your queries below:");
+        System.out.println("Type 'exit' to stop.");
 
-        System.out.print("Enter the number of faculty queries: ");
-        int numFacultyQueries = input.nextInt();
-        for (int i = 1; i <= numFacultyQueries; i++) {
-            System.out.print("Enter the time required for Faculty " + i + " (in minutes): ");
-            int time = input.nextInt();
-            facultyQueue.add(new Query("Faculty " + i, time));
-        }
+        while (true) {
+            System.out.print("Name: ");
+            String name = scanner.nextLine();
 
-        int currentTime = 0;
-        int totalTime = 0;
-        int totalQueries = numStudentQueries + numFacultyQueries;
-        int timeSlice = 5; // Assuming each query gets 5 minutes of time
+            if (name.equalsIgnoreCase("exit")) {
+                break;
+            }
 
-        while (currentTime < 120 && (studentQueue.size() > 0 || facultyQueue.size() > 0)) {
-            if (studentQueue.size() > 0) {
-                Query currentQuery = studentQueue.peek();
-                if (currentQuery.timeRemaining > timeSlice) {
-                    currentQuery.timeRemaining -= timeSlice;
-                    currentTime += timeSlice;
-                } else {
-                    studentQueue.remove();
-                    totalTime += currentTime + currentQuery.timeRemaining;
-                    currentTime += currentQuery.timeRemaining;
-                }
+            System.out.print("Type (student/faculty): ");
+            String type = scanner.nextLine();
+
+            System.out.print("Time required to resolve (in minutes): ");
+            int time = scanner.nextInt();
+            scanner.nextLine(); // consume the new line character
+
+            Query query = new Query(name, time);
+
+            if (type.equalsIgnoreCase("student")) {
+                studentQueue.add(query);
+            } else if (type.equalsIgnoreCase("faculty")) {
+                facultyQueue.add(query);
             } else {
-                Query currentQuery = facultyQueue.peek();
-                if (currentQuery.timeRemaining > timeSlice) {
-                    currentQuery.timeRemaining -= timeSlice;
-                    currentTime += timeSlice;
-                } else {
-                    facultyQueue.remove();
-                    totalTime += currentTime + currentQuery.timeRemaining;
-                    currentTime += currentQuery.timeRemaining;
-                }
-            }
-            // Round-robin scheduling
-            if (studentQueue.size() > 0 && facultyQueue.size() > 0) {
-                Query currentQuery = studentQueue.peek();
-                if (currentQuery.timeRemaining > facultyQueue.peek().timeRemaining) {
-                    currentQuery = facultyQueue.peek();
-                }
-                if (currentQuery.timeRemaining > timeSlice) {
-                    currentQuery.timeRemaining -= timeSlice;
-                    currentTime += timeSlice;
-                } else if (currentQuery == studentQueue.peek()) {
-                    studentQueue.remove();
-                    totalTime += currentTime + currentQuery.timeRemaining;
-                    currentTime += currentQuery.timeRemaining;
-                } else {
-                    facultyQueue.remove();
-                    totalTime += currentTime + currentQuery.timeRemaining;
-                    currentTime += currentQuery.timeRemaining;
-                }
+                System.out.println("Invalid query type. Please try again.");
+                continue;
             }
         }
-        double avgQueryTime = (double) totalTime / totalQueries;
-        System.out.println("Total time spent on handling queries: " + totalTime + " minutes");
-        System.out.println("Average query time: " + avgQueryTime + " minutes");
+
+        scanner.close();
+
+        int totalTime = 0;
+
+        System.out.println("Query summary:");
+
+        // Handle student queries
+        System.out.println("\nStudent queries:");
+
+        while (!studentQueue.isEmpty()) {
+            Query query = studentQueue.poll();
+            System.out.println(query.name + ": " + query.time + " minutes");
+            totalTime += query.time;
+
+            if ( (studentTotalTime + facultyTotalTime)> 120) { // Sudesh Sharma's available time is 2 hours = 120 minutes
+                System.out.println("Time limit reached. Remaining queries will not be handled.");
+                break;
+            }
+
+            studentTotalTime += query.time;
+        }
+
+        if (studentTotalTime > 0) {
+            System.out.println("\nTotal time spent on student queries: " + studentTotalTime + " minutes");
+            
+        }
+
+        totalTime = 0;
+
+        // Handle faculty queries
+        System.out.println("\nFaculty queries:");
+
+        while (!facultyQueue.isEmpty()) {
+            Query query = facultyQueue.poll();
+            System.out.println(query.name + ": " + query.time + " minutes");
+            totalTime += query.time;
+
+            if (totalTime > 120) { // Sudesh Sharma's available time is 2 hours = 120 minutes
+                System.out.println("Time limit reached. Remaining queries will not be handled.");
+                break;
+            }
+
+            facultyTotalTime += query.time;
+        }
+
+        if (facultyTotalTime > 0) {
+            System.out.println("\nTotal time spent on faculty queries: " + facultyTotalTime + " minutes");
+          
+            System.out.println("\nTotal time spend for both faculty and students queries: " +(facultyTotalTime + studentTotalTime));
+            
+            double avgWaitingTime = (double) (studentTotalTime + facultyTotalTime)/ n;
+            System.out.println("Average waiting time: " + avgWaitingTime);
+        }
+
     }
+
 }
+
